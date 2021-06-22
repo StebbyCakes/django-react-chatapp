@@ -7,7 +7,7 @@ class App extends React.Component {
     super(props);
     this.state = {
       message: [],
-      text: '',
+      field: '',
     }
     this.inputMessage = this.inputMessage.bind(this);
     this.handleInput = this.handleInput.bind(this);
