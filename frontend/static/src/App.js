@@ -1,63 +1,78 @@
 import React from 'react';
 import Cookies from 'js-cookie';
+import ChatWindow from './chatwindow.js';
+import Registration from './registration.js';
+import Login from './login.js'
 import './App.css';
 
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      message: [],
-      field: '',
+      selection: !!Cookies.get('Authorization') ? 'chat' : 'login'
     }
-    this.inputMessage = this.inputMessage.bind(this);
     this.handleInput = this.handleInput.bind(this);
+    this.handleLogin = this.handleLogin.bind(this);
+    this.handleRegistration = this.handleRegistration.bind(this);
+    this.handleForm = this.handleForm.bind(this);
   }
 
-  componentDidMount(){
-    fetch('/api/v1/chatlog/')
-    .then(response => response.json())
-    .then(data => this.setState({ message: data }));
-  }
-  handleInput(event) {
+
+  handleInput(event){
     this.setState({[event.target.name]: event.target.value});
   }
 
-  inputMessage(event) {
+    async handleLogin(user) {
+     const options = {
+       method: 'POST',
+       headers: {
+         'Content-Type': 'application/json',
+         'X-CSRFToken': Cookies.get('csrftoken'),
+       },
+       body: JSON.stringify(user),
+     };
+     const handleError = (err) => console.warn(err);
+     const response = await fetch('/rest-auth/login/', options);
+     const data = await response.json().catch(handleError);
+     if (data.key) {
+       Cookies.set('Authorization', `Token ${data.key}`);
+       this.setState({selection: 'chat'});
+     }
+   }
 
-    const message = {
-      field: this.state.field,
-    };
+   handleForm(selection) {
+       this.setState({selection});
+     }
+
+   async handleRegistration(user) {
     const options = {
       method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': Cookies.get('csrftoken'),
-    },
-    body: JSON.stringify(message),
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': Cookies.get('csrftoken'),
+      },
+      body: JSON.stringify(user),
+    };
+    const handleError = (err) => console.warn(err);
+    const response = await fetch('/rest-auth/registration/', options);
+    const data = await response.json().catch(handleError);
+    if (data.key) {
+      Cookies.set('Authorization', `Token ${data.key}`);
+      this.setState({selection: 'chat'});
     }
-    fetch('/api/v1/chatlog/', options)
-      .then(response => response.json())
-      .then(data => this.setState(data));
-    }
+  }
 
   render() {
-    const message= this.state.message.map(message => (
-      <li key={message.id}>
-        <p>{message.field}</p>
-      </li>
-    ))
+    // const cookie = Cookies.get('Authorization');
+    // console.log(cookie)
     return(
       <>
-      <div className="chat-log">
+      <div className="background">
         <h1>Online Chat Log</h1>
-        <section className="main">
-        <form onSubmit={this.inputMessage}>
-          <input onChange={this.handleInput} className="field" type="text" name="field" value={this.state.field} />
-          <button className="button" type="submit">Send</button>
-        </form>
-        </section>
-        <ul>{message}</ul>
-        </div>
+        {this.state.selection === 'login' && <Login handleForm={this.handleForm} handleLogin={this.handleLogin}/>}
+        {this.state.selection === 'register' && <Registration handleForm={this.handleForm} handleRegistration={this.handleRegistration}/>}
+        {this.state.selection === 'chat' && <ChatWindow/>}
+      </div>
       </>
     )
   }
