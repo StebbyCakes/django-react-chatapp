@@ -11,3 +11,7 @@ class ChatListAPIView(generics.ListCreateAPIView):
 
     # def perform_create(self, serializer):
     #     serializer.save(author=self.request.user)
+
+class ChatListDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Chat.objects.all()
+    serializer_class = ChatSerializer
