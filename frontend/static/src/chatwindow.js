@@ -1,6 +1,5 @@
 import { Component } from 'react';
 import ChatSubmit from './chatsubmit.js';
-import Cookies from 'js-cookie';
 
 class ChatWindow extends Component {
   constructor(props){

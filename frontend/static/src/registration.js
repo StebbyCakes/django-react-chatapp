@@ -19,7 +19,7 @@ handleInput(event) {
 
 handleSubmit(event){
   event.preventDefault();
-  this.props.handleRegister(this.state);
+  this.props.handleRegistration(this.state);
 }
 
 
