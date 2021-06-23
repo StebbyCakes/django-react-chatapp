@@ -19,7 +19,7 @@ handleInput(event) {
 handleSubmit(event){
   event.preventDefault();
   this.props.handleLogin(this.state);
-}
+    }
 
 
    render() {

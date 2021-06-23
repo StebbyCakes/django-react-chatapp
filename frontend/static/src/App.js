@@ -23,25 +23,23 @@ class App extends React.Component {
     this.setState({[event.target.name]: event.target.value});
   }
 
-    async handleLogin(user) {
-     const options = {
-       method: 'POST',
-       headers: {
-         'Content-Type': 'application/json',
-         'X-CSRFToken': Cookies.get('csrftoken'),
-       },
-       body: JSON.stringify(user),
-     };
-     const handleError = (err) => console.warn(err);
-     const response = await fetch('/rest-auth/login/', options);
-     const data = await response.json().catch(handleError);
-     if (data.key) {
-       Cookies.set('Authorization', `Token ${data.key}`);
-       this.setState({selection: 'chat'});
-     }
+  async handleLogin(user) {
+   const options = {
+     method: 'POST',
+     headers: {
+       'Content-Type': 'application/json',
+       'X-CSRFToken': Cookies.get('csrftoken'),
+     },
+     body: JSON.stringify(user),
+   };
+   const handleError = (err) => console.warn(err);
+   const response = await fetch('/rest-auth/login/', options);
+   const data = await response.json().catch(handleError);
+   if (data.key) {
+     Cookies.set('Authorization', `Token ${data.key}`);
+     this.setState({selection: 'chat'});
    }
-
-
+ }
 
    handleForm(selection) {
        this.setState({selection});
