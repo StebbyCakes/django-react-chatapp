@@ -40,7 +40,7 @@ class ChatWindow extends Component {
     }
 
   render() {
-    Cookies.remove('Authorization')
+    // Cookies.remove('Authorization')
     const message= this.state.message.map(message => (
       <li key={message.id}>
         <p>{message.field}</p>
