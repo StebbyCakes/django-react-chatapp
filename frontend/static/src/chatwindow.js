@@ -82,9 +82,9 @@ editMessage(id) {
   fetch(`/api/v1/chatlog/${id}/`, options)
     .then(response => response.json())
 }
-
+// Cookies.remove('Authorization') // this needs to go inside of the render whenever heroku doesnt work
   render() {
-Cookies.remove('Authorization')
+
     const message= this.state.message.map(message => (
       <li key={message.id}>
         <p>{message.field}</p>
