@@ -12,6 +12,8 @@ class ChatWindow extends Component {
     }
 
     this.inputMessage = this.inputMessage.bind(this);
+    this.removeMessage = this.removeMessage.bind(this);
+    this.editMessage = this.editMessage.bind(this);
   }
   componentDidMount(){
     fetch('/api/v1/chatlog/')
@@ -45,6 +47,10 @@ class ChatWindow extends Component {
     removeMessage(id) {
     const options = {
       method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': Cookies.get('csrftoken'),
+      },
     }
 
     fetch(`/api/v1/chatlog/${id}/`, options)
