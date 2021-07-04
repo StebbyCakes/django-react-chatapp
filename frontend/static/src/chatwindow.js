@@ -1,47 +1,60 @@
 import { Component } from 'react';
 import ChatSubmit from './chatsubmit.js';
 import Cookies from 'js-cookie';
+import MessageDetail from './messageDetail.js'
 
 class ChatWindow extends Component {
   constructor(props){
     super(props);
     this.state = {
-      message: [],
-      isEditing: null,
-      edit: '',
+      messages: [],
     }
 
-    this.inputMessage = this.inputMessage.bind(this);
+    // this.inputMessage = this.inputMessage.bind(this);
     this.removeMessage = this.removeMessage.bind(this);
     this.editMessage = this.editMessage.bind(this);
+    this.fetchData = this.fetchData.bind(this);
   }
-  componentDidMount(){
+  componentDidMount() {
+    this.retrieveMessages = setInterval(this.fetchData, 500)
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.retrieveMessages)
+  }
+
+  fetchData() {
     fetch('/api/v1/chatlog/')
-    .then(response => response.json())
-    .then(data => this.setState({ message: data }));
-  }
-
-
-  inputMessage(message) {
-    const options = {
-      method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': Cookies.get('csrftoken'),
-      },
-      body: JSON.stringify(message),
-    }
-    fetch('/api/v1/chatlog/', options)
       .then(response => {
-
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
-
         return response.json();
       })
-      .then(data => this.setState({message: [...this.state.message, data]}));
-    }
+      .then(data => this.setState({ messages: data }));
+  }
+
+
+  // inputMessage(message) {
+  //   const options = {
+  //     method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         'X-CSRFToken': Cookies.get('csrftoken'),
+  //     },
+  //     body: JSON.stringify(message),
+  //   }
+  //   fetch('/api/v1/chatlog/', options)
+  //     .then(response => {
+  //
+  //       if (!response.ok) {
+  //         throw new Error('Network response was not ok');
+  //       }
+  //
+  //       return response.json();
+  //     })
+  //     .then(data => this.setState({message: [...this.state.message, data]}));
+  //   }
 
 
     removeMessage(id) {
@@ -56,54 +69,58 @@ class ChatWindow extends Component {
     fetch(`/api/v1/chatlog/${id}/`, options)
       .then(response => {
         //logic to update state
-        const message = [...this.state.message];
-        const index = message.findIndex(message => message.id === id);
-        message.splice(index, 1);
-        this.setState({ message });
+        const messages = [...this.state.messages];
+        const index = messages.findIndex(message => message.id === id);
+        messages.splice(index, 1);
+        this.setState({ messages });
       })
       .catch((error) => {
         console.log.error('Error:', error);
       });
   }
 
-editMessage(id) {
-  const newMessage = {
-    message: this.state.edit,
-  }
+editMessage(message) {
+  const id = message.id;
+
   const options = {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
       'X-CSRFToken': Cookies.get('csrftoken'),
     },
-    body: JSON.stringify(newMessage),
+    body: JSON.stringify(message),
   }
 
   fetch(`/api/v1/chatlog/${id}/`, options)
-    .then(response => response.json())
-}
+    .then(response => {
+
+      if(!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const messages = [ ...this.state.messages];
+      const index = messages.findIndex(message => message.id === id);
+      messages[index] = message;
+      this.setState({ messages });
+    });
+  }
 // Cookies.remove('Authorization') // this needs to go inside of the render whenever heroku doesnt work
   render() {
 
-    const message= this.state.message.map(message => (
-      <li key={message.id}>
-        <p>{message.field}</p>
-        {this.state.isEditing === message.id ? <button type="button" onClick={() => this.handleEdit(message.id)}>SAVE</button> : <button type="button" onClick={() => this.setState({ isEditing: message.id})}>EDIT</button>}
-        <button type='button' onClick={() => this.removeMessage(message.id)}>Delete</button>
-      </li>
+    const chatDisplay = this.state.messages.map((message) => (
+      <MessageDetail key={message.id} message={message} removeMessage={this.removeMessage} editMessage={this.editMessage}/>
     ))
     return(
       <>
       <div className="chat-log">
-        <ul>{message}</ul>
-        <section>
-          <ChatSubmit inputMessage={this.inputMessage}/>
-        </section>
-        <button type="button" onClick={this.props.handleLogout}>Logout</button>
+        <ul>{chatDisplay}</ul>
+          <section>
+          <ChatSubmit/>
+          </section>
+
         </div>
       </>
     )
   }
 }
 
-export default ChatWindow
+export default ChatWindow;

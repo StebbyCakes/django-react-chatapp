@@ -11,7 +11,6 @@ class App extends React.Component {
     this.state = {
       selection: !!Cookies.get('Authorization') ? 'chat' : 'login'
     }
-    this.handleInput = this.handleInput.bind(this);
     this.handleLogin = this.handleLogin.bind(this);
     this.handleRegistration = this.handleRegistration.bind(this);
     this.handleForm = this.handleForm.bind(this);
@@ -19,11 +18,9 @@ class App extends React.Component {
   }
 
 
-  handleInput(event){
-    this.setState({[event.target.name]: event.target.value});
-  }
 
   async handleLogin(user) {
+    this.setState({ user: user.username});
    const options = {
      method: 'POST',
      headers: {
@@ -78,17 +75,19 @@ class App extends React.Component {
             this.setState({selection: 'login'});
           }
       }
-
+      // const cookie = Cookies.get('Authorization');
+      // console.log(cookie)
   render() {
-    // const cookie = Cookies.get('Authorization');
-    // console.log(cookie)
+
     return(
       <>
       <div className="background">
+
         <h1>Online Chat Log</h1>
         {this.state.selection === 'login' && <Login handleForm={this.handleForm} handleLogin={this.handleLogin}/>}
         {this.state.selection === 'register' && <Registration handleForm={this.handleForm} handleRegistration={this.handleRegistration}/>}
         {this.state.selection === 'chat' && <ChatWindow handleLogout={this.handleLogout}/>}
+        {this.state.selection === 'chat' && <button type="submit" className="btn btn-primary" onClick={this.handleLogout}>LOGOUT</button>}
       </div>
       </>
     )

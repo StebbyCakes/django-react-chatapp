@@ -152,6 +152,10 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'frontend/static/build/static'),
 )
 
+REST_FRAMEWORK = {
+    'COERCE_DECIMAL_TO_STRING': False,
+}
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 

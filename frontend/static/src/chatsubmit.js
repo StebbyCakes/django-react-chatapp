@@ -6,7 +6,7 @@ import Cookies from 'js-cookie';
     constructor(props){
       super(props);
       this.state = {
-        field: '',
+        messages: '',
       }
       this.handleSubmit = this.handleSubmit.bind(this);
       this.handleInput = this.handleInput.bind(this);
@@ -14,12 +14,21 @@ import Cookies from 'js-cookie';
 
     handleSubmit(event) {
       event.preventDefault();
-      const message = {
-        field: this.state.field,
-      };
-      this.props.inputMessage(message);
+      const newSubmit = {
+        message: this.state.messages,
+      }
+      const options = {
+        method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': Cookies.get('csrftoken'),
+          },
+          body: JSON.stringify(newSubmit),
+      }
+      fetch('/api/v1/chatlog/', options)
+        .then(response => response.json());
 
-      this.setState({field: ''});
+      this.setState({ messages: ''});
     }
 
 
@@ -31,7 +40,7 @@ import Cookies from 'js-cookie';
       render(){
         return(
         <form onSubmit={this.handleSubmit}>
-          <input onChange={this.handleInput} className="field" type="text" name="field" value={this.state.field} />
+          <textarea className="chat-submit" name="messages" value={this.state.messages} placeholder="Enter a message" onChange={this.handleInput}></textarea>
           <button className="button" type="submit">Send</button>
         </form>
       )}
